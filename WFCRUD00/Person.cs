@@ -14,6 +14,10 @@ namespace WFCRUD00
         public string Email { get; set; }
         public string Phone { get; set; }
 
+        public Person()
+        {
+
+        }
         public Person(string firstName, string lastName, string email, string phone)
         {
             FirstName = firstName;

@@ -68,12 +68,64 @@ namespace WFCRUD00
                 }
                 catch (SQLiteException)
                 {
+                    connection.Close();
                     return insert;
                 }
             }
             connection.Close();
 
             return insert;
+        }
+
+        public static int Update(Person person, int id)
+        {
+            connection.Open();
+            int update = -1;
+
+            using (SQLiteCommand cmd = new SQLiteCommand(connection))
+            {
+                cmd.CommandText = "UPDATE people SET firstName = @firstName, lastName = @lastName, email = @email, phone = @phone WHERE id = @id";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@firstName", person.FirstName);
+                cmd.Parameters.AddWithValue("@lastName", person.LastName);
+                cmd.Parameters.AddWithValue("@email", person.Email);
+                cmd.Parameters.AddWithValue("@phone", person.Phone);
+                cmd.Parameters.AddWithValue("@id", id);
+                try
+                {
+                    update = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    connection.Close();
+                    return -1;
+                }
+            }
+            connection.Close();
+
+            return update;
+        }
+
+        public static Person Find(int id)
+        {
+            using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM people WHERE id = @id LIMIT 1", connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                connection.Open();
+                SQLiteDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    Person person = new Person(reader[1].ToString(), reader[2].ToString(), reader[3].ToString(), reader[4].ToString());
+                    person.Id = Int32.Parse(reader[0].ToString());
+                    connection.Close();
+                    return person;
+                }
+            }
+
+            connection.Close();
+            return new Person();
         }
     }
 }

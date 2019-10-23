@@ -30,6 +30,18 @@ namespace WFCRUD00
                 return;
             }
 
+            if (String.IsNullOrEmpty(lblID.Text))
+            {
+                InsertPerson();
+            }
+            else
+            {
+                UpdatePerson();
+            }
+        }
+
+        private void InsertPerson()
+        {
             Person person = new Person(txtFirstName.Text, txtLastName.Text, txtEmail.Text, txtPhone.Text);
 
             if (DbData.Insert(person) != -1)
@@ -43,8 +55,31 @@ namespace WFCRUD00
             MessageBox.Show("Hubo un error al registrar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void UpdatePerson()
+        {
+            Person person = new Person(txtFirstName.Text, txtLastName.Text, txtEmail.Text, txtPhone.Text);
+            int id = Int32.Parse(lblID.Text);
+
+            try
+            {
+                if (DbData.Update(person, id) != -1)
+                {
+                    MessageBox.Show("Registro actualizado correctamente", "Actualizar registro", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    RefreshGrid();
+                    ClearForm();
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Hubo un error al actualizar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
+        }
+
         private void ClearForm()
         {
+            lblID.Text = String.Empty;
             txtFirstName.Clear();
             txtLastName.Clear();
             txtEmail.Clear();
@@ -66,8 +101,22 @@ namespace WFCRUD00
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView.Rows[e.RowIndex];
-                txtFirstName.Text = row.Cells[0].Value.ToString();
+
+                if (int.TryParse(row.Cells[0].Value.ToString(), out int id))
+                {
+                    Person person = DbData.Find(id);
+                    FillForm(person);
+                }
             }
+        }
+
+        private void FillForm(Person person)
+        {
+            lblID.Text = person.Id.ToString();
+            txtFirstName.Text = person.FirstName;
+            txtLastName.Text = person.LastName;
+            txtEmail.Text = person.Email;
+            txtPhone.Text = person.Phone;
         }
     }
 }
