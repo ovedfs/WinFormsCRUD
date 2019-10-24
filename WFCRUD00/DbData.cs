@@ -13,7 +13,7 @@ namespace WFCRUD00
 {
     public class DbData
     {
-        protected static SQLiteConnection connection = new SQLiteConnection(@"Data Source=people.db;Version=3;");
+        protected static SQLiteConnection connection = new SQLiteConnection(@"Data Source=C:\Users\OvedFS\Desktop\people.db;Version=3; FailIfMissing=True;");
 
         /*public DbData()
         {
@@ -79,13 +79,14 @@ namespace WFCRUD00
 
         public static int Update(Person person, int id)
         {
-            connection.Open();
+            /*connection.Open();
             int update = -1;
 
             using (SQLiteCommand cmd = new SQLiteCommand(connection))
             {
-                cmd.CommandText = "UPDATE people SET firstName = @firstName, lastName = @lastName, email = @email, phone = @phone WHERE id = @id";
-                cmd.Prepare();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "UPDATE people SET firstName = '@firstName', lastName = '@lastName', email = '@email', phone = '@phone' WHERE id = @id";
+                //cmd.Prepare();
                 cmd.Parameters.AddWithValue("@firstName", person.FirstName);
                 cmd.Parameters.AddWithValue("@lastName", person.LastName);
                 cmd.Parameters.AddWithValue("@email", person.Email);
@@ -103,6 +104,39 @@ namespace WFCRUD00
                 }
             }
             connection.Close();
+
+            return update;*/
+
+            int update = -1;
+            using (SQLiteConnection connection = new SQLiteConnection(@"Data Source=C:\Users\OvedFS\Desktop\people.db;Version=3; FailIfMissing=True;"))
+            {
+                string query = $"UPDATE people SET firstName = '{person.FirstName}', lastName = '{person.LastName}', email = '{person.Email}', phone = '{person.Phone}' WHERE id = {id}";
+
+                using (SQLiteCommand cmd = new SQLiteCommand(query, connection))
+                {
+                    /*cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@firstName", person.FirstName);
+                    cmd.Parameters.AddWithValue("@lastName", person.LastName);
+                    cmd.Parameters.AddWithValue("@email", person.Email);
+                    cmd.Parameters.AddWithValue("@phone", person.Phone);
+                    cmd.Parameters.AddWithValue("@id", id);*/
+
+                    try
+                    {
+                        connection.Open();
+                        update = cmd.ExecuteNonQuery();
+                        connection.Close();
+                    }
+                    catch (SQLiteException e)
+                    {
+                        MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return -1;
+                    }
+                }
+                //SQLiteCommand cmd = new SQLiteCommand(query, connection);
+                
+                //connection.Close();
+            }
 
             return update;
         }

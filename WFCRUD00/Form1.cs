@@ -30,13 +30,13 @@ namespace WFCRUD00
                 return;
             }
 
-            if (String.IsNullOrEmpty(lblID.Text))
+            if (! String.IsNullOrEmpty(lblID.Text))
             {
-                InsertPerson();
+                UpdatePerson();
             }
             else
             {
-                UpdatePerson();
+                InsertPerson();
             }
         }
 
